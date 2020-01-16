@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from './services/api';
 
 import "./global.css";
 import "./App.css";
@@ -20,8 +21,13 @@ import "./Main.css";
  */
 
 function App() {
+  const [developers, setDevelopers] = useState([]);
+  const [github_username, setGithubUser] = useState('');
+  const [techs, setTechs] = useState('');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
+
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => { 
@@ -33,20 +39,51 @@ function App() {
       (err) => { console.log(err) }, 
       { timeout: 30000 }
     );
+  }, []);
+
+  useEffect(() => {
+    async function loadDevelopers() {
+      const response = await api.get('/developers');
+
+      setDevelopers(response.data);
+    }
+
+    loadDevelopers();
   }, [])
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    const response = await api.post('/developers', { github_username, techs, latitude, longitude });
+
+    setGithubUser('');
+    setTechs('');
+  }
 
   return (
     <div id="app">
       <aside>
         <strong>Register</strong>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="input-block">
-            <label htmlFor="github_user">Github User</label>
-            <input type="text" name="github_user" id="github_user" required /> 
+            <label htmlFor="github_username">Github User</label>
+            <input 
+              type="text" 
+              name="github_username" 
+              id="github_username" 
+              value={github_username}
+              onChange={e => setGithubUser(e.target.value)}
+              required /> 
           </div>
           <div className="input-block">
             <label htmlFor="techs">Technologies</label>
-            <input type="text" name="techs" id="techs" required /> 
+            <input 
+              type="text" 
+              name="techs" 
+              id="techs" 
+              value={techs}
+              onChange={e => setTechs(e.target.value)}
+              required /> 
           </div>
           <div className="input-group">
             <div className="input-block">
@@ -76,50 +113,20 @@ function App() {
       </aside>
       <main>
         <ul>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/11969565?s=460&v=4" alt="" />
-              <div className="user-info">
-                <strong>Julaini</strong>
-                <span>ReactJs</span>
-              </div>
-            </header>
-            <p>Juliani Bio</p>
-            <a href="https://github.com/Schlickmann">See profile in Github</a>
-          </li>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/11969565?s=460&v=4" alt="" />
-              <div className="user-info">
-                <strong>Julaini</strong>
-                <span>ReactJs</span>
-              </div>
-            </header>
-            <p>Juliani Bio</p>
-            <a href="https://github.com/Schlickmann">See profile in Github</a>
-          </li>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/11969565?s=460&v=4" alt="" />
-              <div className="user-info">
-                <strong>Julaini</strong>
-                <span>ReactJs</span>
-              </div>
-            </header>
-            <p>Juliani Bio</p>
-            <a href="https://github.com/Schlickmann">See profile in Github</a>
-          </li>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/11969565?s=460&v=4" alt="" />
-              <div className="user-info">
-                <strong>Julaini</strong>
-                <span>ReactJs</span>
-              </div>
-            </header>
-            <p>Juliani Bio</p>
-            <a href="https://github.com/Schlickmann">See profile in Github</a>
-          </li>
+          {developers.map( developer => (
+            <li key={developer._id} className="dev-item">
+              <header>
+                <img src={developer.avatar_url} alt="" />
+                <div className="user-info">
+                  <strong>{developer.name}</strong>
+                  <span>{developer.techs.join(', ')}</span>
+                </div>
+              </header>
+              <p>{developer.bio}</p>
+              <a href={`https://github.com/${developer.github_username}`} target="_blank">See profile in Github</a>
+            </li>
+          ))}
+          
         </ul>
       </main>
     </div>
