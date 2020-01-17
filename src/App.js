@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import api from './services/api';
 
 import DeveloperItem from './components/DeveloperItem';
 import DeveloperForm from './components/DeveloperForm';
@@ -22,12 +23,30 @@ import "./Main.css";
  */
 
 function App() {
+  const [developers, setDevelopers] = useState([]);
+
+  useEffect(() => {
+    async function loadDevelopers() {
+      const response = await api.get('/developers');
+
+      setDevelopers(response.data);
+    }
+
+    loadDevelopers();
+  }, [])
+
+  async function handleAddDeveloper(data) {
+
+    const response = await api.post('/developers', data);
+
+    setDevelopers([...developers, response.data]);
+  }
 
   return (
     <div id="app">
       <aside>
         <strong>Register</strong>
-        <DeveloperForm />
+        <DeveloperForm onSubmit={handleAddDeveloper} />
       </aside>
       <main>
         <ul>

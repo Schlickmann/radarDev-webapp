@@ -1,8 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import api from '../../services/api';
 
-function DeveloperForm() {
-    const [developers, setDevelopers] = useState([]);
+function DeveloperForm({ onSubmit }) {
   const [github_username, setGithubUser] = useState('');
   const [techs, setTechs] = useState('');
   const [latitude, setLatitude] = useState('');
@@ -22,25 +20,14 @@ function DeveloperForm() {
     );
   }, []);
 
-  useEffect(() => {
-    async function loadDevelopers() {
-      const response = await api.get('/developers');
-
-      setDevelopers(response.data);
-    }
-
-    loadDevelopers();
-  }, [])
-
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const response = await api.post('/developers', { github_username, techs, latitude, longitude });
+    await onSubmit({ github_username, techs, latitude, longitude });
+
 
     setGithubUser('');
     setTechs('');
-
-    setDevelopers([...developers, response.data]);
   }
 
     return (
@@ -93,4 +80,4 @@ function DeveloperForm() {
     );
 }
 
-export default DeveloperForm();
+export default DeveloperForm;
