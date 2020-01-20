@@ -31,6 +31,7 @@ function SearchForm({ onSearch, onClear, isFiltered }) {
                     id="search" 
                     value={search}
                     onChange={e => setSearch(e.target.value)}
+                    disabled={isFiltered}
                     required /> 
                 </div>
                 {isFiltered ? (<button onClick={handleClear} type="reset">Clear</button>) : (<button onClick={handleSearch} type="submit">Search</button>)}
