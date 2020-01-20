@@ -3,6 +3,7 @@ import api from './services/api';
 
 import DeveloperItem from './components/DeveloperItem';
 import DeveloperForm from './components/DeveloperForm';
+import SearchForm from './components/SearchForm';
 import "./global.css";
 import "./App.css";
 import "./Sidebar.css";
@@ -24,16 +25,18 @@ import "./Main.css";
 
 function App() {
   const [developers, setDevelopers] = useState([]);
+  const [isFiltered, setIsFiltered] = useState(false);
 
   useEffect(() => {
-    async function loadDevelopers() {
-      const response = await api.get('/developers');
-
-      setDevelopers(response.data);
-    }
-
     loadDevelopers();
-  }, [])
+  }, []);
+
+  async function loadDevelopers() {
+    const response = await api.get('/developers');
+
+    setDevelopers(response.data);
+    setIsFiltered(false);
+  }
 
   async function handleAddDeveloper(data) {
 
@@ -42,21 +45,39 @@ function App() {
     setDevelopers([...developers, response.data]);
   }
 
+  async function handleSearch(data) {
+    const response = await api.get('/filter', {
+      params: {
+        search: data.search
+      }
+    });
+
+    setDevelopers(response.data);
+    setIsFiltered(true);
+  }
+
   return (
-    <div id="app">
-      <aside>
-        <strong>Register</strong>
-        <DeveloperForm onSubmit={handleAddDeveloper} />
-      </aside>
-      <main>
-        <ul>
-          {developers.map( developer => (
-            <DeveloperItem key={developer._id} developer={developer} />
-          ))}
-          
-        </ul>
-      </main>
-    </div>
+    <>
+      <header className="title-header">
+          <h1>RadarDev</h1>
+          <h2>Find the best developers in the market</h2>
+      </header>
+      <div id="app">
+        <aside>
+          <strong>Register</strong>
+          <DeveloperForm onSubmit={handleAddDeveloper} />
+        </aside>
+        <main>
+          <SearchForm onSearch={handleSearch} onClear={loadDevelopers} isFiltered={isFiltered} />
+          <ul>
+            {developers.map( developer => (
+              <DeveloperItem key={developer._id} developer={developer} />
+            ))}
+            
+          </ul>
+        </main>
+      </div>
+    </>
   );
 }
 

@@ -11,6 +11,23 @@
     margin-left: 30px;
 }
 
+header.title-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding-top: 30px;
+}
+
+header.title-header > h1 {
+    color: #333;
+}
+
+header.title-header > h2 {
+    color: #666;
+}
+
 @media (max-width: 1000px) {
     #app {
         flex-direction: column;
